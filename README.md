@@ -42,8 +42,46 @@ Berikut langkah-langkah instalasi untuk menjalankan proyek secara lokal.
 
 Clone repository ke dalam komputer lokal Anda:
 
-```bash
+bash
 git clone https://github.com/RifqiLA25/konservasi_satwa_softuni.git
+
+Setup Backend
+Masuk ke direktori backend:
+
+cd konservasi_satwa_softuni/backend
+Buat virtual environment:
+
+Untuk Windows:
+python -m venv venv
+venv\Scripts\activate
+Untuk Linux/Mac:
+python3 -m venv venv
+source venv/bin/activate
+Install dependencies:
+
+pip install -r requirements.txt
+Jalankan migrasi database:
+
+python manage.py migrate
+Buat superuser (opsional, untuk admin panel):
+
+python manage.py createsuperuser
+Jalankan server backend:
+
+python manage.py runserver
+Backend akan berjalan di http://127.0.0.1:8000/.
+
+Setup Frontend
+Masuk ke direktori frontend:
+
+cd ../frontend
+Install dependencies:
+
+npm install
+Jalankan server frontend:
+
+npm run dev
+Frontend akan berjalan di http://localhost:3000.
 
 
 
