@@ -34,54 +34,58 @@ Aplikasi ini memiliki fitur utama sebagai berikut:
 
 ---
 
-## 📥 Instalasi
+# 📥 Instalasi
 
 Berikut langkah-langkah instalasi untuk menjalankan proyek secara lokal.
 
-### Clone Repository
+## Clone Repository
 
-Clone repository ke dalam komputer lokal Anda:
+1. Clone repository ke dalam komputer lokal Anda:
 
-bash
-git clone https://github.com/RifqiLA25/konservasi_satwa_softuni.git
+   ```bash
+   git clone https://github.com/RifqiLA25/konservasi_satwa_softuni.git
+   🖥️ Setup Backend
 
-Setup Backend
-Masuk ke direktori backend:
+   Masuk ke direktori backend:
+   cd konservasi_satwa_softuni/backend
+   
+   Buat virtual environment:
+   Untuk Windows:
+   python -m venv venv
+   venv\Scripts\activate
 
-cd konservasi_satwa_softuni/backend
-Buat virtual environment:
+   Untuk Linux/Mac:
+   python3 -m venv venv
+   source venv/bin/activate
 
-Untuk Windows:
-python -m venv venv
-venv\Scripts\activate
-Untuk Linux/Mac:
-python3 -m venv venv
-source venv/bin/activate
-Install dependencies:
+   Install dependencies:
+   pip install -r requirements.txt
 
-pip install -r requirements.txt
-Jalankan migrasi database:
+   Jalankan migrasi database:
+   python manage.py migrate
 
-python manage.py migrate
-Buat superuser (opsional, untuk admin panel):
+   Buat superuser (opsional, untuk admin panel):
+   python manage.py createsuperuser
 
-python manage.py createsuperuser
-Jalankan server backend:
+   Jalankan server backend:
+   python manage.py runserver
 
-python manage.py runserver
-Backend akan berjalan di http://127.0.0.1:8000/.
+   Server backend akan berjalan di:
+   http://127.0.0.1:8000/
 
-Setup Frontend
-Masuk ke direktori frontend:
+   💻 Setup Frontend
 
-cd ../frontend
-Install dependencies:
+   Masuk ke direktori frontend:
+   cd ../frontend
 
-npm install
-Jalankan server frontend:
+   Install dependencies:
+   npm install
 
-npm run dev
-Frontend akan berjalan di http://localhost:3000.
+   Jalankan server frontend:
+   npm run dev
+
+   Server frontend akan berjalan di:
+   http://localhost:5173/
 
 
 
@@ -107,11 +111,9 @@ Frontend akan berjalan di http://localhost:3000.
 
 ### News
 - GET /api/news/ - Daftar berita
-- GET /api/news/{id}/ - Detail berita
 
 ### Locations
 - GET /api/locations/ - Daftar lokasi
-- GET /api/locations/{id}/ - Detail lokasi
 
 ## 👤 Pengembang
 
