@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { getNews } from '../services/apiService';
 import {
   Container,
   Grid,
@@ -12,11 +11,19 @@ import {
   Avatar,
   Divider,
   Paper,
+  Button,
 } from '@mui/material';
+import { getNews, deleteNewsArticle } from '../services/apiService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const News = () => {
+  const { user } = useAuth();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,6 +46,23 @@ const News = () => {
     fetchNews();
   }, []);
 
+  const handleDelete = async (id) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus berita ini?')) {
+      try {
+        await deleteNewsArticle(id);
+        setNews(news.filter(item => item.id !== id));
+      } catch (err) {
+        console.error('Error deleting news:', err);
+        alert('Gagal menghapus berita');
+      }
+    }
+  };
+
+  const canModify = (article) => {
+    if (!user) return false;
+    return user.is_staff || article.penulis?.id === user.id;
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -59,9 +83,23 @@ const News = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom sx={{ mb: 4 }}>
-        Berita Terbaru
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h3" component="h1">
+          Berita Terbaru
+        </Typography>
+        {user && (
+          <Button
+            component={Link}
+            to="/news/create"
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+          >
+            Tulis Berita
+          </Button>
+        )}
+      </Box>
+
       <Grid container spacing={4}>
         {news.map((article) => (
           <Grid item key={article.id} xs={12}>
@@ -124,6 +162,28 @@ const News = () => {
                           </Paper>
                         ))}
                       </Box>
+                    </Box>
+                  )}
+
+                  {canModify(article) && (
+                    <Box sx={{ p: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                      <Button
+                        component={Link}
+                        to={`/news/${article.id}/edit`}
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<EditIcon />}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(article.id)}
+                        variant="outlined"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                      >
+                        Hapus
+                      </Button>
                     </Box>
                   )}
                 </CardContent>

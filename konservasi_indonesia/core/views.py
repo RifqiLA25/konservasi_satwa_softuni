@@ -64,7 +64,11 @@ class LocationViewSet(viewsets.ModelViewSet):
 class AnimalViewSet(viewsets.ModelViewSet):
     queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
-    permission_classes = [IsStaffOrReadOnly]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsStaffOrReadOnly()]
+        return [permissions.AllowAny()]
 
     def get_queryset(self):
         return Animal.objects.all().select_related('species').prefetch_related('lokasi')
@@ -83,7 +87,11 @@ class ConservationViewSet(viewsets.ModelViewSet):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
+        return [permissions.AllowAny()]
 
     def perform_create(self, serializer):
         serializer.save(penulis=self.request.user)

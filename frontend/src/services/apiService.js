@@ -71,12 +71,8 @@ export const getCurrentUser = async () => {
 
 // Animals
 export const getAnimals = async () => {
-  try {
-    const response = await api.get('/animals/');
-    return response.data;
-  } catch (error) {
-    handleApiError(error);
-  }
+  const response = await api.get('/animals/');
+  return response.data;
 };
 
 export const getAnimal = async (id) => {
@@ -84,18 +80,14 @@ export const getAnimal = async (id) => {
   return response.data;
 };
 
-export const createAnimal = async (formData) => {
-  try {
-    const response = await axios.post(`${API_URL}/animals/`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getAuthToken()}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw handleError(error);
-  }
+export const createAnimal = async (data) => {
+  const response = await axios.post(`${API_URL}/animals/`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${getAuthToken()}`
+    }
+  });
+  return response.data;
 };
 
 export const updateAnimal = async (id, data) => {
