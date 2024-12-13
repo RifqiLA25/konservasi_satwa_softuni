@@ -3,10 +3,10 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .models import Species, Location, Animal, Conservation, News
+from .models import Species, Location, Animal, Conservation, News, UserProfile
 from .serializers import (
     UserSerializer, SpeciesSerializer, LocationSerializer,
-    AnimalSerializer, ConservationSerializer, NewsSerializer
+    AnimalSerializer, ConservationSerializer, NewsSerializer, UserProfileSerializer
 )
 from .permissions import IsOwnerOrReadOnly, IsStaffOrReadOnly, IsAdminOrStaffReadOnly
 
@@ -34,24 +34,40 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get', 'put'])
+    def profile(self, request):
+        try:
+            profile = request.user.profile
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=request.user)
+        
+        if request.method == 'GET':
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=400)
+
 class SpeciesViewSet(viewsets.ModelViewSet):
     queryset = Species.objects.all()
     serializer_class = SpeciesSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
 
 class AnimalViewSet(viewsets.ModelViewSet):
-    queryset = Animal.objects.all().prefetch_related('species', 'lokasi')
+    queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
-    
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [permissions.AllowAny()]
-        return [IsAdminOrReadOnly()]
+    permission_classes = [IsStaffOrReadOnly]
+
+    def get_queryset(self):
+        return Animal.objects.all().select_related('species').prefetch_related('lokasi')
 
 class ConservationViewSet(viewsets.ModelViewSet):
     queryset = Conservation.objects.all()
@@ -67,8 +83,7 @@ class ConservationViewSet(viewsets.ModelViewSet):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
-        return [permissions.AllowAny()]
+    permission_classes = [IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(penulis=self.request.user)

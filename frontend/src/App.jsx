@@ -5,6 +5,8 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import About from './pages/About';
 import Login from './pages/Login';
+import Register from './components/Auth/Register';
+import UserProfile from './components/Auth/UserProfile';
 import Animals from './pages/Animals';
 import AnimalDetail from './components/AnimalDetail';
 import News from './pages/News';
@@ -27,6 +29,15 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route 
+            path="/profile" 
+            element={
+              <PrivateRoute>
+                <UserProfile />
+              </PrivateRoute>
+            }
+          />
 
           {/* Protected Routes (Staff/Admin Only) */}
           <Route 

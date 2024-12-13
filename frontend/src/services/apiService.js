@@ -177,13 +177,30 @@ export const createDonation = async (donationData) => {
 
 // User Profile
 export const getProfile = async () => {
-  const response = await api.get('/profiles/me/');
-  return response.data;
+  try {
+    const token = getAuthToken();
+    const response = await api.get('/users/me/profile/', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
 };
 
-export const updateProfile = async (data) => {
-  const response = await api.put('/profiles/me/', data);
-  return response.data;
+export const updateProfile = async (formData) => {
+  try {
+    const response = await api.put('/users/me/profile/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
 };
 
 // Fungsi untuk membuat berita baru
@@ -228,14 +245,36 @@ const getAuthToken = () => {
 // Helper function untuk handle error
 const handleError = (error) => {
   if (error.response) {
-    // Server merespons dengan status error
-    throw error.response.data;
+    // Error dari server dengan response
+    const data = error.response.data;
+    
+    if (typeof data === 'object') {
+      // Jika error berupa object, ambil pesan errornya
+      const messages = Object.values(data).flat();
+      throw new Error(messages.join('\n'));
+    } else if (typeof data === 'string') {
+      throw new Error(data);
+    }
+    
+    // Handle status code spesifik
+    switch (error.response.status) {
+      case 400:
+        throw new Error('Data yang dikirim tidak valid. Silakan periksa kembali.');
+      case 401:
+        throw new Error('Sesi Anda telah berakhir. Silakan login kembali.');
+      case 403:
+        throw new Error('Anda tidak memiliki izin untuk melakukan aksi ini.');
+      case 404:
+        throw new Error('Data tidak ditemukan.');
+      case 500:
+        throw new Error('Terjadi kesalahan pada server. Silakan coba lagi nanti.');
+      default:
+        throw new Error('Terjadi kesalahan. Silakan coba lagi.');
+    }
   } else if (error.request) {
-    // Request dibuat tapi tidak ada respons
-    throw new Error('Tidak dapat terhubung ke server');
+    throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
   } else {
-    // Error lainnya
-    throw new Error('Terjadi kesalahan');
+    throw new Error('Terjadi kesalahan. Silakan coba lagi.');
   }
 };
 

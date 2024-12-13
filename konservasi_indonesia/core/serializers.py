@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Species, Location, Animal, Conservation, News
+from .models import Species, Location, Animal, Conservation, News, UserProfile
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -25,31 +25,21 @@ class UserSerializer(serializers.ModelSerializer):
 class SpeciesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Species
-        fields = '__all__'
+        fields = ['id', 'nama', 'nama_latin']
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = '__all__'
+        fields = ['id', 'nama']
 
 class AnimalSerializer(serializers.ModelSerializer):
     species = SpeciesSerializer(read_only=True)
     lokasi = LocationSerializer(many=True, read_only=True)
-    species_id = serializers.PrimaryKeyRelatedField(
-        queryset=Species.objects.all(),
-        write_only=True,
-        source='species'
-    )
-    lokasi_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Location.objects.all(),
-        write_only=True,
-        source='lokasi',
-        many=True
-    )
-
+    
     class Meta:
         model = Animal
-        fields = '__all__'
+        fields = ['id', 'nama', 'species', 'status', 'populasi', 
+                 'deskripsi', 'gambar', 'lokasi']
 
 class ConservationSerializer(serializers.ModelSerializer):
     animal = AnimalSerializer(read_only=True)
@@ -99,3 +89,8 @@ class NewsSerializer(serializers.ModelSerializer):
         if len(value) < 100:
             raise serializers.ValidationError('Konten berita minimal 100 karakter')
         return value
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'location', 'avatar']
