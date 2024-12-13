@@ -84,9 +84,18 @@ export const getAnimal = async (id) => {
   return response.data;
 };
 
-export const createAnimal = async (data) => {
-  const response = await api.post('/animals/', data);
-  return response.data;
+export const createAnimal = async (formData) => {
+  try {
+    const response = await axios.post(`${API_URL}/animals/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${getAuthToken()}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
 export const updateAnimal = async (id, data) => {
@@ -175,6 +184,59 @@ export const getProfile = async () => {
 export const updateProfile = async (data) => {
   const response = await api.put('/profiles/me/', data);
   return response.data;
+};
+
+// Fungsi untuk membuat berita baru
+export const createNews = async (formData) => {
+  try {
+    const response = await axios.post(`${API_URL}/news/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${getAuthToken()}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
+// Fungsi untuk membuat program konservasi baru
+export const createConservation = async (data) => {
+  try {
+    const response = await axios.post(`${API_URL}/conservation/`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAuthToken()}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
+// Helper function untuk mendapatkan token
+const getAuthToken = () => {
+  const authTokens = localStorage.getItem('authTokens');
+  if (authTokens) {
+    return JSON.parse(authTokens).access;
+  }
+  return null;
+};
+
+// Helper function untuk handle error
+const handleError = (error) => {
+  if (error.response) {
+    // Server merespons dengan status error
+    throw error.response.data;
+  } else if (error.request) {
+    // Request dibuat tapi tidak ada respons
+    throw new Error('Tidak dapat terhubung ke server');
+  } else {
+    // Error lainnya
+    throw new Error('Terjadi kesalahan');
+  }
 };
 
 export default api;

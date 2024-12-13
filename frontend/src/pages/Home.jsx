@@ -1,11 +1,10 @@
-import { Container, Typography, Box, Button, Grid, Card, CardContent, CardMedia } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import PetsIcon from '@mui/icons-material/Pets';
-import NatureIcon from '@mui/icons-material/Nature';
-import GroupsIcon from '@mui/icons-material/Groups';
+import { Box, Container, Typography, Button, Grid, Paper } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
 
 function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <Box>
@@ -27,150 +26,167 @@ function Home() {
           <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 4, fontWeight: 300 }}>
             Melindungi Keanekaragaman Hayati Indonesia
           </Typography>
-          <Button
-            variant="contained"
-            color="secondary"
-            size="large"
-            onClick={() => navigate('/animals')}
-            sx={{ 
-              px: 6,
-              py: 2,
-              fontSize: '1.2rem',
-              borderRadius: '30px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 25px rgba(0,0,0,0.2)',
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Jelajahi Satwa
-          </Button>
+          {user ? (
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Selamat Datang, {user.username}!
+            </Typography>
+          ) : (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              onClick={() => navigate('/login')}
+              sx={{ 
+                px: 6,
+                py: 2,
+                fontSize: '1.2rem',
+                borderRadius: '30px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 25px rgba(0,0,0,0.2)',
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Bergabung Sekarang
+            </Button>
+          )}
         </Container>
       </Box>
 
-      {/* Featured Content */}
+      {/* Dashboard Section untuk User yang Login */}
+      {user && (
+        <Container maxWidth="lg" sx={{ mb: 6 }}>
+          <Grid container spacing={3}>
+            {/* Menu Admin/Staff */}
+            {user.is_staff && (
+              <Grid item xs={12}>
+                <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Menu Admin
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => navigate('/animals/create')}
+                    >
+                      Tambah Data Satwa
+                    </Button>
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => navigate('/news/create')}
+                    >
+                      Tambah Berita
+                    </Button>
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => navigate('/conservation/create')}
+                    >
+                      Tambah Program Konservasi
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+        </Container>
+      )}
+
+      {/* Main Content */}
       <Container maxWidth="lg">
         <Grid container spacing={4}>
+          {/* Katalog Satwa */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ 
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              borderRadius: 4,
-              transition: 'transform 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-8px)'
-              }
-            }}>
-              <CardMedia
-                component="div"
-                sx={{
-                  pt: '56.25%',
-                  background: 'linear-gradient(45deg, #2E7D32 30%, #43A047 90%)',
-                }}
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                p: 3, 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)'
+                }
+              }}
+            >
+              <Typography variant="h5" component="h3" gutterBottom>
+                Katalog Satwa
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2, flex: 1 }}>
+                Temukan informasi lengkap tentang spesies satwa dilindungi di Indonesia.
+              </Typography>
+              <Button 
+                variant="contained"
+                onClick={() => navigate('/animals')}
               >
-                <PetsIcon sx={{ 
-                  fontSize: 70, 
-                  color: 'white', 
-                  position: 'absolute', 
-                  top: '50%', 
-                  left: '50%', 
-                  transform: 'translate(-50%, -50%)',
-                  opacity: 0.9
-                }} />
-              </CardMedia>
-              <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Typography gutterBottom variant="h5" component="h2" fontWeight="bold">
-                  Misi Kami
-                </Typography>
-                <Typography variant="body1">
-                  Kami berkomitmen untuk melindungi dan melestarikan satwa liar Indonesia melalui
-                  konservasi, edukasi, dan keterlibatan masyarakat.
-                </Typography>
-              </CardContent>
-            </Card>
+                Lihat Katalog
+              </Button>
+            </Paper>
           </Grid>
 
+          {/* Berita Konservasi */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ 
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              borderRadius: 4,
-              transition: 'transform 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-8px)'
-              }
-            }}>
-              <CardMedia
-                component="div"
-                sx={{
-                  pt: '56.25%',
-                  background: 'linear-gradient(45deg, #7B1FA2 30%, #9C27B0 90%)',
-                }}
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                p: 3, 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)'
+                }
+              }}
+            >
+              <Typography variant="h5" component="h3" gutterBottom>
+                Berita Konservasi
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2, flex: 1 }}>
+                Update terbaru tentang kegiatan konservasi satwa di Indonesia.
+              </Typography>
+              <Button 
+                variant="contained"
+                onClick={() => navigate('/news')}
               >
-                <NatureIcon sx={{ 
-                  fontSize: 70, 
-                  color: 'white', 
-                  position: 'absolute', 
-                  top: '50%', 
-                  left: '50%', 
-                  transform: 'translate(-50%, -50%)',
-                  opacity: 0.9
-                }} />
-              </CardMedia>
-              <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Typography gutterBottom variant="h5" component="h2" fontWeight="bold">
-                  Program Konservasi
-                </Typography>
-                <Typography variant="body1">
-                  Temukan program konservasi yang sedang berjalan dan pelajari bagaimana Anda dapat
-                  berkontribusi dalam melindungi spesies terancam punah.
-                </Typography>
-              </CardContent>
-            </Card>
+                Baca Berita
+              </Button>
+            </Paper>
           </Grid>
 
+          {/* Program Konservasi */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ 
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              borderRadius: 4,
-              transition: 'transform 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-8px)'
-              }
-            }}>
-              <CardMedia
-                component="div"
-                sx={{
-                  pt: '56.25%',
-                  background: 'linear-gradient(45deg, #1565C0 30%, #1976D2 90%)',
-                }}
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                p: 3, 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)'
+                }
+              }}
+            >
+              <Typography variant="h5" component="h3" gutterBottom>
+                Program Konservasi
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2, flex: 1 }}>
+                Program-program pelestarian satwa yang sedang berjalan.
+              </Typography>
+              <Button 
+                variant="contained"
+                onClick={() => navigate('/conservation')}
               >
-                <GroupsIcon sx={{ 
-                  fontSize: 70, 
-                  color: 'white', 
-                  position: 'absolute', 
-                  top: '50%', 
-                  left: '50%', 
-                  transform: 'translate(-50%, -50%)',
-                  opacity: 0.9
-                }} />
-              </CardMedia>
-              <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Typography gutterBottom variant="h5" component="h2" fontWeight="bold">
-                  Bergabung Bersama Kami
-                </Typography>
-                <Typography variant="body1">
-                  Jadilah bagian dari komunitas pecinta satwa liar dan bantu kami dalam upaya
-                  pelestarian satwa Indonesia.
-                </Typography>
-              </CardContent>
-            </Card>
+                Lihat Program
+              </Button>
+            </Paper>
           </Grid>
         </Grid>
       </Container>
