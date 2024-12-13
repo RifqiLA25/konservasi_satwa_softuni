@@ -21,6 +21,7 @@ const UserProfile = () => {
     location: '',
     avatar: null
   });
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -36,6 +37,10 @@ const UserProfile = () => {
     try {
       const data = await getProfile();
       setProfile(data);
+      // Jika ada avatar yang sudah tersimpan, gunakan URL lengkapnya
+      if (data.avatar) {
+        setAvatarPreview(`http://localhost:8000${data.avatar}`);
+      }
     } catch (err) {
       setError('Gagal memuat profil');
     }
@@ -50,71 +55,79 @@ const UserProfile = () => {
   };
 
   const handleFileChange = (e) => {
-    setProfile(prev => ({
-      ...prev,
-      avatar: e.target.files[0]
-    }));
+    const file = e.target.files[0];
+    if (file) {
+      setProfile(prev => ({
+        ...prev,
+        avatar: file
+      }));
+      // Buat preview untuk file yang baru dipilih
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      Object.keys(profile).forEach(key => {
-        formData.append(key, profile[key]);
-      });
+      formData.append('bio', profile.bio);
+      formData.append('location', profile.location);
       
+      // Pastikan file ada sebelum append
+      if (profile.avatar instanceof File) {
+        formData.append('avatar', profile.avatar);
+      }
+      
+      // Tambahkan header multipart/form-data
       await updateProfile(formData);
       setSuccess('Profil berhasil diperbarui');
       setError('');
+      loadProfile();
     } catch (err) {
-      setError('Gagal memperbarui profil');
+      setError('Gagal memperbarui profil: ' + err.message);
       setSuccess('');
     }
   };
 
   return (
-    <Container component="main" maxWidth="sm">
+    <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
+        <Typography variant="h5" component="h1" gutterBottom>
           Profil Saya
         </Typography>
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-        
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+
+        <Box component="form" onSubmit={handleSubmit}>
+          <Box sx={{ mb: 3, textAlign: 'center' }}>
             <Avatar
-              src={profile.avatar ? URL.createObjectURL(profile.avatar) : null}
-              sx={{ width: 100, height: 100 }}
+              src={avatarPreview}
+              sx={{ width: 100, height: 100, mx: 'auto', mb: 2 }}
             />
+            <Button
+              variant="contained"
+              component="label"
+            >
+              Upload Foto Profil
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
           </Box>
-          
-          <Button
-            variant="contained"
-            component="label"
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            Upload Foto Profil
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-          </Button>
 
           <TextField
             fullWidth
             label="Bio"
             name="bio"
-            multiline
-            rows={4}
             value={profile.bio}
             onChange={handleChange}
-            sx={{ mb: 2 }}
+            multiline
+            rows={4}
+            margin="normal"
           />
 
           <TextField
@@ -123,14 +136,14 @@ const UserProfile = () => {
             name="location"
             value={profile.location}
             onChange={handleChange}
-            sx={{ mb: 3 }}
+            margin="normal"
           />
 
           <Button
             type="submit"
-            fullWidth
             variant="contained"
-            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
           >
             Simpan Perubahan
           </Button>

@@ -30,7 +30,9 @@ const handleApiError = (error) => {
 // Add interceptor to add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const authTokens = localStorage.getItem('authTokens');
+    const token = authTokens ? JSON.parse(authTokens).access : null;
+    
     if (token && !config.url.includes('/token/')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -187,11 +189,11 @@ export const updateProfile = async (formData) => {
     const response = await api.put('/users/me/profile/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-      },
+      }
     });
     return response.data;
   } catch (error) {
-    handleApiError(error);
+    throw handleApiError(error);
   }
 };
 

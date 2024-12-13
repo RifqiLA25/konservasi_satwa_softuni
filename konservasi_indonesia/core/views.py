@@ -34,22 +34,22 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get', 'put'])
+    @action(detail=False, methods=['get', 'put', 'patch'], url_path='me/profile')
     def profile(self, request):
         try:
             profile = request.user.profile
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=request.user)
         
-        if request.method == 'GET':
-            serializer = UserProfileSerializer(profile)
-            return Response(serializer.data)
-        elif request.method == 'PUT':
+        if request.method in ['PUT', 'PATCH']:
             serializer = UserProfileSerializer(profile, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=400)
+        
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
 
 class SpeciesViewSet(viewsets.ModelViewSet):
     queryset = Species.objects.all()
