@@ -44,3 +44,42 @@ Clone repository ke dalam komputer lokal Anda:
 
 ```bash
 git clone https://github.com/RifqiLA25/konservasi_satwa_softuni.git
+
+
+
+## 🌟 Fitur
+
+### Admin Panel
+- Manajemen data satwa
+- Manajemen berita
+- Manajemen lokasi
+- Manajemen program konservasi
+
+### Frontend
+- Katalog satwa dilindungi
+- Portal berita konservasi
+- Informasi lokasi dan habitat
+- Halaman about dan kontak
+
+## 📱 Endpoints API
+
+### Animals
+- GET /api/animals/ - Daftar satwa
+- GET /api/animals/{id}/ - Detail satwa
+
+### News
+- GET /api/news/ - Daftar berita
+- GET /api/news/{id}/ - Detail berita
+
+### Locations
+- GET /api/locations/ - Daftar lokasi
+- GET /api/locations/{id}/ - Detail lokasi
+
+## 👤 Pengembang
+
+**Rifqi LA**
+- GitHub: [@RifqiLA25](https://github.com/RifqiLA25)
+
+## 📝 Lisensi
+
+Project ini dibuat untuk tujuan pembelajaran di SoftUni.
