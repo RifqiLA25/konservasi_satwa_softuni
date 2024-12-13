@@ -8,6 +8,7 @@ from .serializers import (
     UserSerializer, SpeciesSerializer, LocationSerializer,
     AnimalSerializer, ConservationSerializer, NewsSerializer
 )
+from .permissions import IsOwnerOrReadOnly, IsStaffOrReadOnly, IsAdminOrStaffReadOnly
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -57,15 +58,17 @@ class ConservationViewSet(viewsets.ModelViewSet):
     serializer_class = ConservationSerializer
     
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [permissions.AllowAny()]
-        return [IsAdminOrReadOnly()]
+        if self.action in ['create', 'update', 'partial_update']:
+            return [IsStaffOrReadOnly()]
+        elif self.action == 'destroy':
+            return [IsAdminOrStaffReadOnly()]
+        return [permissions.AllowAny()]
 
 class NewsViewSet(viewsets.ModelViewSet):
-    queryset = News.objects.all().select_related('penulis').prefetch_related('animals')
+    queryset = News.objects.all()
     serializer_class = NewsSerializer
     
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [permissions.AllowAny()]
-        return [IsAdminOrReadOnly()]
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
+        return [permissions.AllowAny()]

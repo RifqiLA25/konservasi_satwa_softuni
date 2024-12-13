@@ -69,6 +69,13 @@ class ConservationSerializer(serializers.ModelSerializer):
         validated_data['penanggung_jawab'] = self.context['request'].user
         return super().create(validated_data)
 
+    def validate(self, data):
+        if data.get('tanggal_selesai') and data['tanggal_selesai'] < data['tanggal_mulai']:
+            raise serializers.ValidationError({
+                'tanggal_selesai': 'Tanggal selesai harus setelah tanggal mulai'
+            })
+        return data
+
 class NewsSerializer(serializers.ModelSerializer):
     penulis = UserSerializer(read_only=True)
     animals = AnimalSerializer(many=True, read_only=True)
@@ -87,3 +94,8 @@ class NewsSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['penulis'] = self.context['request'].user
         return super().create(validated_data)
+
+    def validate_konten(self, value):
+        if len(value) < 100:
+            raise serializers.ValidationError('Konten berita minimal 100 karakter')
+        return value

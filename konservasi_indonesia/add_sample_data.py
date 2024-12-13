@@ -5,7 +5,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'konservasi_indonesia.settings')
 django.setup()
 
 from core.models import Species, Location, Animal, Conservation, News
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 
 # Create a superuser if it doesn't exist
 try:
@@ -17,6 +18,22 @@ try:
     print('Superuser created successfully')
 except:
     print('Superuser already exists')
+
+# Buat grup Staff
+staff_group, created = Group.objects.get_or_create(name='Staff')
+
+# Set permission untuk Staff
+content_types = ContentType.objects.get_for_models(Animal, Conservation, News)
+permissions = []
+
+for content_type in content_types.values():
+    permissions.extend([
+        Permission.objects.get(codename=f'add_{content_type.model}', content_type=content_type),
+        Permission.objects.get(codename=f'change_{content_type.model}', content_type=content_type),
+        Permission.objects.get(codename=f'view_{content_type.model}', content_type=content_type),
+    ])
+
+staff_group.permissions.set(permissions)
 
 # Create Species
 species_data = [
