@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import jwt_decode from 'jwt-decode';
 import PropTypes from 'prop-types';
+import { isAuthenticated, clearAuthData, logout, getUserFromToken } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
@@ -11,12 +12,11 @@ export const AuthProvider = ({ children }) => {
   });
   
   const [user, setUser] = useState(() => {
-    const tokens = localStorage.getItem('authTokens');
-    if (tokens) {
-      const decoded = jwt_decode(JSON.parse(tokens).access);
-      return decoded;
+    if (!isAuthenticated()) {
+      clearAuthData();
+      return null;
     }
-    return null;
+    return getUserFromToken();
   });
 
   const loginUser = async (username, password) => {
@@ -63,16 +63,35 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem('authTokens');
+    logout();
   };
 
   useEffect(() => {
     const loadUser = () => {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        setUser(JSON.parse(userData));
+      const authTokens = localStorage.getItem('authTokens');
+      if (authTokens) {
+        const tokens = JSON.parse(authTokens);
+        const decoded = jwt_decode(tokens.access);
+        setUser({
+          username: decoded.username,
+          user_id: decoded.user_id,
+          is_staff: decoded.is_staff,
+          email: decoded.email
+        });
       }
     };
     loadUser();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isAuthenticated()) {
+        clearAuthData();
+        setUser(null);
+      }
+    }, 300000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const contextData = {
