@@ -1,36 +1,36 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Species, Location, Animal, Conservation, News, UserProfile
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         
-        # Pastikan semua field ada dan tipe datanya benar
+        # Tambahkan data tambahan ke payload token
         token['user_id'] = user.id
-        token['username'] = str(user.username)
-        token['is_staff'] = bool(user.is_staff)
-        token['email'] = str(user.email)
+        token['username'] = user.username
+        token['is_staff'] = user.is_staff
+        token['email'] = user.email or ''
         
         return token
 
     def validate(self, attrs):
+        # Panggil parent validate
         data = super().validate(attrs)
         user = self.user
         
-        # Tambahkan user data ke response
+        # Tambahkan data user ke respons API
         data.update({
-            'user_data': {
-                'user_id': user.id,
-                'username': str(user.username),
-                'is_staff': bool(user.is_staff),
-                'email': str(user.email)
-            }
+            'user_id': user.id,
+            'username': user.username,
+            'is_staff': user.is_staff,
+            'email': user.email or ''
         })
-        
         return data
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -44,25 +44,31 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        # Validasi email wajib diisi
+        if not validated_data.get('email'):
+            raise serializers.ValidationError({'email': 'Email is required'})
+
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email', ''),
+            email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            is_staff=validated_data.get('is_staff', '')
+            last_name=validated_data.get('last_name', '')
         )
         return user
+
 
 class SpeciesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Species
         fields = ['id', 'nama', 'nama_latin']
 
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['id', 'nama']
+
 
 class AnimalSerializer(serializers.ModelSerializer):
     species = SpeciesSerializer(read_only=True)
@@ -72,6 +78,7 @@ class AnimalSerializer(serializers.ModelSerializer):
         model = Animal
         fields = ['id', 'nama', 'species', 'status', 'populasi', 
                  'deskripsi', 'gambar', 'lokasi']
+
 
 class ConservationSerializer(serializers.ModelSerializer):
     animal = AnimalSerializer(read_only=True)
@@ -98,6 +105,7 @@ class ConservationSerializer(serializers.ModelSerializer):
             })
         return data
 
+
 class NewsSerializer(serializers.ModelSerializer):
     penulis = UserSerializer(read_only=True)
     
@@ -114,8 +122,8 @@ class NewsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Konten berita minimal 100 karakter')
         return value
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['bio', 'location', 'avatar']
-

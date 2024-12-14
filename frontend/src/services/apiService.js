@@ -137,8 +137,18 @@ export const getNews = async () => {
 };
 
 export const getNewsArticle = async (id) => {
-  const response = await api.get(`/news/${id}/`);
-  return response.data;
+  try {
+    const token = getAuthToken();
+    const response = await api.get(`/news/${id}/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching news article:', error);
+    throw error;
+  }
 };
 
 export const createNewsArticle = async (data) => {
@@ -272,14 +282,23 @@ const handleError = (error) => {
   }
 };
 
-export const updateNews = async (id, data) => {
-  const response = await api.put(`/news/${id}/`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${getAuthToken()}`
+export const updateNews = async (id, formData) => {
+  try {
+    const token = getAuthToken();
+    const response = await api.put(`/news/${id}/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error('Response Error:', error.response.data);
+      throw new Error(JSON.stringify(error.response.data));
     }
-  });
-  return response.data;
+    throw error;
+  }
 };
 
 export default api;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -27,6 +27,7 @@ const News = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchNews();
@@ -60,29 +61,11 @@ const News = () => {
 
   const canModify = (article) => {
     if (!user || !article) {
-        console.log("No user or article data");
-        return false;
+      return false;
     }
-    
-    console.log("Article author:", {
-        id: article.penulis?.id,
-        username: article.penulis?.username
-    });
-    
-    console.log("Current user:", {
-        id: user.user_id,
-        username: user.username,
-        isStaff: user.is_staff
-    });
     
     const isStaff = Boolean(user.is_staff);
     const isAuthor = Number(user.user_id) === Number(article.penulis?.id);
-    
-    console.log("Permission check:", {
-        isStaff,
-        isAuthor,
-        finalResult: isStaff || isAuthor
-    });
     
     return isStaff || isAuthor;
   };
@@ -192,11 +175,13 @@ const News = () => {
                   {canModify(article) && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                       <Button
-                        component={Link}
-                        to={`/news/edit/${article.id}`}
                         variant="outlined"
                         color="primary"
                         startIcon={<EditIcon />}
+                        onClick={() => {
+                          console.log('Navigating to edit page with ID:', article.id);
+                          navigate(`/news/edit/${article.id}`);
+                        }}
                       >
                         Edit
                       </Button>

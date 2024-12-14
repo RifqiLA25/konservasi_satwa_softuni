@@ -35,27 +35,39 @@ const EditNews = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('EditNews: Loading data for ID:', id);
+      console.log('Current user:', user);
+      
+      if (!id) {
+        console.log('No ID provided');
+        navigate('/news');
+        return;
+      }
+
       try {
         setLoading(true);
-        const [news, animalsResponse] = await Promise.all([
+        const [newsData, animalsData] = await Promise.all([
           getNewsArticle(id),
           getAnimals()
         ]);
-
-        if (!user?.is_staff && news.penulis.id !== user?.id) {
-          navigate('/news');
-          return;
+        
+        console.log('Loaded news data:', newsData);
+        
+        if (user?.is_staff || newsData.penulis?.id === user?.user_id) {
+          setAvailableAnimals(animalsData.results || []);
+          setFormData({
+            judul: newsData.judul,
+            konten: newsData.konten,
+            animals: newsData.animals || [],
+            gambar: newsData.gambar
+          });
+        } else {
+          console.log('User not authorized');
+          setError('Anda tidak memiliki akses untuk mengedit berita ini');
+          setTimeout(() => navigate('/news'), 2000);
         }
-
-        setAvailableAnimals(animalsResponse.results || []);
-        setFormData({
-          judul: news.judul,
-          konten: news.konten,
-          animals: news.animals || [],
-          gambar: news.gambar
-        });
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error loading news:', err);
         setError('Gagal memuat data berita');
       } finally {
         setLoading(false);
@@ -78,28 +90,27 @@ const EditNews = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    if (e.target.files?.[0]) {
       setFormData(prev => ({
         ...prev,
-        gambar: file
+        gambar: e.target.files[0]
       }));
     }
   };
 
   const handleAnimalChange = (event) => {
-    const value = event.target.value;
+    const selectedAnimals = Array.isArray(event.target.value) ? event.target.value : [];
     setFormData(prev => ({
       ...prev,
-      animals: value
+      animals: selectedAnimals
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
-    setSuccess('');
-
+    
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('judul', formData.judul);
@@ -109,15 +120,22 @@ const EditNews = () => {
         formDataToSend.append('gambar', formData.gambar);
       }
       
-      formData.animals.forEach(animalId => {
-        formDataToSend.append('animals', animalId);
-      });
+      if (Array.isArray(formData.animals)) {
+        formData.animals.forEach(animalId => {
+          formDataToSend.append('animals', animalId);
+        });
+      }
 
       await updateNews(id, formDataToSend);
       setSuccess('Berita berhasil diperbarui');
-      setTimeout(() => navigate('/news'), 1500);
+      setTimeout(() => {
+        navigate('/news');
+      }, 1500);
     } catch (err) {
+      console.error('Error updating news:', err);
       setError('Gagal memperbarui berita: ' + (err.message || 'Terjadi kesalahan'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -220,14 +238,16 @@ const EditNews = () => {
               variant="contained"
               color="primary"
               fullWidth
+              disabled={loading}
             >
-              Simpan Perubahan
+              {loading ? <CircularProgress size={24} /> : 'Simpan Perubahan'}
             </Button>
             <Button
               variant="outlined"
               color="secondary"
               fullWidth
               onClick={() => navigate('/news')}
+              disabled={loading}
             >
               Batal
             </Button>

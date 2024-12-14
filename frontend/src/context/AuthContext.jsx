@@ -137,4 +137,3 @@ const getCurrentUser = () => {
       return null;
   }
 };
-
