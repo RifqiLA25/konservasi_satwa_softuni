@@ -1,13 +1,44 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Species, Location, Animal, Conservation, News, UserProfile
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        
+        # Pastikan semua field ada dan tipe datanya benar
+        token['user_id'] = user.id
+        token['username'] = str(user.username)
+        token['is_staff'] = bool(user.is_staff)
+        token['email'] = str(user.email)
+        
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+        
+        # Tambahkan user data ke response
+        data.update({
+            'user_data': {
+                'user_id': user.id,
+                'username': str(user.username),
+                'is_staff': bool(user.is_staff),
+                'email': str(user.email)
+            }
+        })
+        
+        return data
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    is_staff = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
+        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name', 'is_staff')
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -18,7 +49,8 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', '')
+            last_name=validated_data.get('last_name', ''),
+            is_staff=validated_data.get('is_staff', '')
         )
         return user
 
@@ -68,18 +100,10 @@ class ConservationSerializer(serializers.ModelSerializer):
 
 class NewsSerializer(serializers.ModelSerializer):
     penulis = UserSerializer(read_only=True)
-    animals = AnimalSerializer(many=True, read_only=True)
-    animal_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Animal.objects.all(),
-        write_only=True,
-        source='animals',
-        many=True
-    )
-
+    
     class Meta:
         model = News
-        fields = '__all__'
-        read_only_fields = ('penulis',)
+        fields = ['id', 'judul', 'konten', 'gambar', 'animals', 'penulis', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         validated_data['penulis'] = self.context['request'].user
@@ -94,3 +118,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['bio', 'location', 'avatar']
+

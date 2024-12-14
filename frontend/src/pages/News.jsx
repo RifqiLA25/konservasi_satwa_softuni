@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -16,7 +17,6 @@ import {
 import { getNews, deleteNewsArticle } from '../services/apiService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -29,28 +29,28 @@ const News = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        setLoading(true);
-        const response = await getNews();
-        setNews(response.results || []);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching news:', err);
-        setError('Gagal memuat berita. Silakan coba lagi nanti.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNews();
   }, []);
+
+  const fetchNews = async () => {
+    try {
+      setLoading(true);
+      const response = await getNews();
+      setNews(response.results || []);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching news:', err);
+      setError('Gagal memuat berita. Silakan coba lagi nanti.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus berita ini?')) {
       try {
         await deleteNewsArticle(id);
-        setNews(news.filter(item => item.id !== id));
+        await fetchNews();
       } catch (err) {
         console.error('Error deleting news:', err);
         alert('Gagal menghapus berita');
@@ -59,8 +59,22 @@ const News = () => {
   };
 
   const canModify = (article) => {
-    if (!user) return false;
-    return user.is_staff || article.penulis?.id === user.id;
+    if (!user || !article) {
+        console.log("No user or article data");
+        return false;
+    }
+    
+    console.log("Checking permissions for:", {
+        userId: user.user_id,
+        isStaff: user.is_staff,
+        articleAuthorId: article.penulis?.id
+    });
+    
+    // Convert ke boolean untuk memastikan
+    const isStaff = Boolean(user.is_staff);
+    const isAuthor = Number(user.user_id) === Number(article.penulis?.id);
+    
+    return isStaff || isAuthor;
   };
 
   if (loading) {
@@ -100,11 +114,11 @@ const News = () => {
         )}
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={3}>
         {news.map((article) => (
-          <Grid item key={article.id} xs={12}>
+          <Grid item xs={12} key={article.id}>
             <Paper elevation={3}>
-              <Card sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+              <Card sx={{ display: { md: 'flex' } }}>
                 <CardMedia
                   component="img"
                   sx={{
@@ -166,10 +180,10 @@ const News = () => {
                   )}
 
                   {canModify(article) && (
-                    <Box sx={{ p: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                       <Button
                         component={Link}
-                        to={`/news/${article.id}/edit`}
+                        to={`/news/edit/${article.id}`}
                         variant="outlined"
                         color="primary"
                         startIcon={<EditIcon />}

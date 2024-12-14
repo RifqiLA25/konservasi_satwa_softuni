@@ -30,10 +30,8 @@ const handleApiError = (error) => {
 // Add interceptor to add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    const authTokens = localStorage.getItem('authTokens');
-    const token = authTokens ? JSON.parse(authTokens).access : null;
-    
-    if (token && !config.url.includes('/token/')) {
+    const token = getAuthToken();
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -200,15 +198,20 @@ export const updateProfile = async (formData) => {
 // Fungsi untuk membuat berita baru
 export const createNews = async (formData) => {
   try {
-    const response = await axios.post(`${API_URL}/news/`, formData, {
+    const token = getAuthToken();
+    const response = await api.post('/news/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getAuthToken()}`
+        'Authorization': `Bearer ${token}`
       }
     });
     return response.data;
   } catch (error) {
-    throw handleError(error);
+    if (error.response) {
+      console.error('Response Error:', error.response.data);
+      throw new Error(JSON.stringify(error.response.data));
+    }
+    throw error;
   }
 };
 
@@ -229,11 +232,8 @@ export const createConservation = async (data) => {
 
 // Helper function untuk mendapatkan token
 const getAuthToken = () => {
-  const authTokens = localStorage.getItem('authTokens');
-  if (authTokens) {
-    return JSON.parse(authTokens).access;
-  }
-  return null;
+  const authTokens = JSON.parse(localStorage.getItem('authTokens'));
+  return authTokens?.access;
 };
 
 // Helper function untuk handle error
@@ -270,6 +270,16 @@ const handleError = (error) => {
   } else {
     throw new Error('Terjadi kesalahan. Silakan coba lagi.');
   }
+};
+
+export const updateNews = async (id, data) => {
+  const response = await api.put(`/news/${id}/`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${getAuthToken()}`
+    }
+  });
+  return response.data;
 };
 
 export default api;

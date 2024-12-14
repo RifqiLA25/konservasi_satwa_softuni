@@ -16,11 +16,9 @@ export const isAuthenticated = () => {
 };
 
 export const isStaff = () => {
-    if (!isAuthenticated()) return false;
+    const userData = localStorage.getItem('userData');
+    if (!userData) return false;
     
-    const authTokens = localStorage.getItem('authTokens');
-    const tokens = JSON.parse(authTokens);
-    const tokenData = JSON.parse(atob(tokens.access.split('.')[1]));
-    
-    return tokenData.is_staff === true;
+    const user = JSON.parse(userData);
+    return Boolean(user.is_staff);
 }; 

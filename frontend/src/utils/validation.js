@@ -24,6 +24,7 @@ export const validateNews = (data) => {
     return errors;
 };
 
+
 export const validateConservation = (data) => {
     const errors = {};
     

@@ -6,9 +6,10 @@ from django.contrib.auth.models import User
 from .models import Species, Location, Animal, Conservation, News, UserProfile
 from .serializers import (
     UserSerializer, SpeciesSerializer, LocationSerializer,
-    AnimalSerializer, ConservationSerializer, NewsSerializer, UserProfileSerializer
+    AnimalSerializer, ConservationSerializer, NewsSerializer, UserProfileSerializer, MyTokenObtainPairSerializer
 )
 from .permissions import IsOwnerOrReadOnly, IsStaffOrReadOnly, IsAdminOrStaffReadOnly
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -95,3 +96,6 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(penulis=self.request.user)
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

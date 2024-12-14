@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import CreateAnimal from './pages/CreateAnimal';
 import CreateNews from './pages/CreateNews';
 import CreateConservation from './pages/CreateConservation';
+import EditNews from './pages/EditNews';
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
               </PrivateRoute>
             } 
           />
+          <Route path="/news/edit/:id" element={<EditNews />} />
         </Routes>
       </AuthProvider>
     </Router>

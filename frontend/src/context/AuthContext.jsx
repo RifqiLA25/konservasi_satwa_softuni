@@ -1,20 +1,23 @@
-import { createContext, useState, useContext} from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useState, useContext, useEffect } from 'react';
+import jwt_decode from 'jwt-decode';
 import PropTypes from 'prop-types';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [authTokens, setAuthTokens] = useState(() => 
-    localStorage.getItem('authTokens') 
-      ? JSON.parse(localStorage.getItem('authTokens')) 
-      : null
-  );
-  const [user, setUser] = useState(() => 
-    localStorage.getItem('authTokens') 
-      ? jwtDecode(localStorage.getItem('authTokens')) 
-      : null
-  );
+  const [authTokens, setAuthTokens] = useState(() => {
+    const tokens = localStorage.getItem('authTokens');
+    return tokens ? JSON.parse(tokens) : null;
+  });
+  
+  const [user, setUser] = useState(() => {
+    const tokens = localStorage.getItem('authTokens');
+    if (tokens) {
+      const decoded = jwt_decode(JSON.parse(tokens).access);
+      return decoded;
+    }
+    return null;
+  });
 
   const loginUser = async (username, password) => {
     try {
@@ -29,8 +32,24 @@ export const AuthProvider = ({ children }) => {
       
       if (response.ok) {
         setAuthTokens(data);
-        setUser(jwtDecode(data.access));
+        
+        const tokenParts = data.access.split('.');
+        const payload = JSON.parse(atob(tokenParts[1]));
+        
+        const userData = {
+          user_id: payload.user_id || 1,
+          username: payload.username,
+          is_staff: Boolean(payload.is_staff),
+          email: payload.email
+        };
+        
+        console.log("Token payload:", payload);
+        console.log("Setting user data:", userData);
+        
+        setUser(userData);
         localStorage.setItem('authTokens', JSON.stringify(data));
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
         return true;
       }
       return false;
@@ -46,6 +65,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authTokens');
   };
 
+  useEffect(() => {
+    const loadUser = () => {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    };
+    loadUser();
+  }, []);
+
   const contextData = {
     user,
     authTokens,
@@ -60,8 +89,15 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-export const useAuth = () => useContext(AuthContext);
