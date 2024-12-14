@@ -64,15 +64,25 @@ const News = () => {
         return false;
     }
     
-    console.log("Checking permissions for:", {
-        userId: user.user_id,
-        isStaff: user.is_staff,
-        articleAuthorId: article.penulis?.id
+    console.log("Article author:", {
+        id: article.penulis?.id,
+        username: article.penulis?.username
     });
     
-    // Convert ke boolean untuk memastikan
+    console.log("Current user:", {
+        id: user.user_id,
+        username: user.username,
+        isStaff: user.is_staff
+    });
+    
     const isStaff = Boolean(user.is_staff);
     const isAuthor = Number(user.user_id) === Number(article.penulis?.id);
+    
+    console.log("Permission check:", {
+        isStaff,
+        isAuthor,
+        finalResult: isStaff || isAuthor
+    });
     
     return isStaff || isAuthor;
   };

@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import jwt_decode from 'jwt-decode';
 import PropTypes from 'prop-types';
-import { isAuthenticated, clearAuthData, logout, getUserFromToken } from '../utils/auth';
+import { isAuthenticated, clearAuthData, logout } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
@@ -11,53 +11,49 @@ export const AuthProvider = ({ children }) => {
     return tokens ? JSON.parse(tokens) : null;
   });
   
-  const [user, setUser] = useState(() => {
-    if (!isAuthenticated()) {
-      clearAuthData();
-      return null;
-    }
-    return getUserFromToken();
-  });
+  const [user, setUser] = useState(() => getCurrentUser());
 
   const loginUser = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:8000/api/token/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAuthTokens(data);
+        const response = await fetch('http://localhost:8000/api/token/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
         
-        const tokenParts = data.access.split('.');
-        const payload = JSON.parse(atob(tokenParts[1]));
-        
-        const userData = {
-          user_id: payload.user_id || 1,
-          username: payload.username,
-          is_staff: Boolean(payload.is_staff),
-          email: payload.email
-        };
-        
-        console.log("Token payload:", payload);
-        console.log("Setting user data:", userData);
-        
-        setUser(userData);
-        localStorage.setItem('authTokens', JSON.stringify(data));
-        localStorage.setItem('userData', JSON.stringify(userData));
-        
-        return true;
-      }
-      return false;
+        if (response.ok) {
+            console.log("Token response:", data);
+            
+            setAuthTokens(data);
+            
+            // Decode token untuk mendapatkan user data
+            const token = data.access;
+            const tokenParts = token.split('.');
+            const payload = JSON.parse(atob(tokenParts[1]));
+            
+            const userData = {
+                user_id: payload.user_id,
+                username: payload.username,
+                is_staff: Boolean(payload.is_staff),
+                email: payload.email
+            };
+            
+            console.log("Setting user data:", userData);
+            
+            setUser(userData);
+            localStorage.setItem('authTokens', JSON.stringify(data));
+            
+            return true;
+        }
+        return false;
     } catch (error) {
-      console.error('Login error:', error);
-      return false;
+        console.error('Login error:', error);
+        return false;
     }
-  };
+};
 
   const logoutUser = () => {
     setAuthTokens(null);
@@ -118,5 +114,27 @@ export const useAuth = () => {
 
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired
+};
+
+const getCurrentUser = () => {
+  try {
+      const authTokens = localStorage.getItem('authTokens');
+      if (authTokens) {
+          const tokens = JSON.parse(authTokens);
+          const tokenParts = tokens.access.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          
+          return {
+              user_id: payload.user_id,
+              username: payload.username,
+              is_staff: Boolean(payload.is_staff),
+              email: payload.email
+          };
+      }
+      return null;
+  } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+  }
 };
 
