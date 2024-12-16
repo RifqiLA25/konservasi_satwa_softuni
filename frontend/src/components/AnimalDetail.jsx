@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { 
   Container, 
   Box, 
@@ -14,14 +14,22 @@ import {
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { getAnimal } from '../services/apiService'
+import { useAuth } from '../context/AuthContext'
 
 function AnimalDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [animal, setAnimal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (!user) {
+      navigate('/login', { state: { from: `/animals/${id}` } })
+      return
+    }
+
     const fetchAnimal = async () => {
       try {
         setLoading(true)
@@ -37,7 +45,7 @@ function AnimalDetail() {
     }
 
     fetchAnimal()
-  }, [id])
+  }, [id, user, navigate])
 
   const getStatusColor = (status) => {
     const statusColors = {

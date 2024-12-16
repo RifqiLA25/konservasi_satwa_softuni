@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Paper, TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem, OutlinedInput } from '@mui/material';
+import { Container, Paper, TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem, OutlinedInput, Chip } from '@mui/material';
 import { createNews, getAnimals } from '../services/apiService';
 
 const validateNews = (data) => {
@@ -177,6 +177,20 @@ function CreateNews() {
               value={formData.animals}
               onChange={handleAnimalChange}
               input={<OutlinedInput label="Hewan Terkait" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => {
+                    const animal = availableAnimals.find(a => a.id === value);
+                    return (
+                      <Chip 
+                        key={value} 
+                        label={animal ? animal.nama : 'Tidak ditemukan'} 
+                        sx={{ m: 0.5 }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
             >
               {availableAnimals.map((animal) => (
                 <MenuItem key={animal.id} value={animal.id}>

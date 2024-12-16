@@ -13,7 +13,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip
+  Chip,
+  OutlinedInput
 } from '@mui/material';
 import { getNewsArticle, updateNews, getAnimals } from '../services/apiService';
 import { useAuth } from '../context/AuthContext';
@@ -58,7 +59,7 @@ const EditNews = () => {
           setFormData({
             judul: newsData.judul,
             konten: newsData.konten,
-            animals: newsData.animals || [],
+            animals: newsData.animals?.map(animal => animal.id) || [],
             gambar: newsData.gambar
           });
         } else {
@@ -182,12 +183,13 @@ const EditNews = () => {
             required
           />
 
-          <FormControl fullWidth sx={{ mt: 2 }}>
+          <FormControl fullWidth margin="normal">
             <InputLabel>Hewan Terkait</InputLabel>
             <Select
               multiple
               value={formData.animals}
               onChange={handleAnimalChange}
+              input={<OutlinedInput label="Hewan Terkait" />}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((value) => {
@@ -195,7 +197,8 @@ const EditNews = () => {
                     return (
                       <Chip 
                         key={value} 
-                        label={animal ? animal.nama : value}
+                        label={animal ? animal.nama : 'Tidak ditemukan'} 
+                        sx={{ m: 0.5 }}
                       />
                     );
                   })}

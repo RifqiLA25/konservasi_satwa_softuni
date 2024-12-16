@@ -1,9 +1,10 @@
 import { Grid, Card, CardMedia, CardContent, Typography, Button, Box, Chip } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import PropTypes from 'prop-types';
+import { useAuth } from '../context/AuthContext';
 
 const getStatusText = (status) => {
   const statusMap = {
@@ -28,6 +29,17 @@ const getStatusColor = (status) => {
 };
 
 const AnimalList = ({ animals = [], onDelete, isStaff }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleDetailClick = (animalId) => {
+    if (!user) {
+      navigate('/login', { state: { from: `/animals/${animalId}` } });
+      return;
+    }
+    navigate(`/animals/${animalId}`);
+  };
+
   return (
     <Box sx={{ py: 4, px: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -71,7 +83,7 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
                   {animal?.nama}
                 </Typography>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Species: {animal?.species?.nama || 'Tidak ada data'}
+                  {animal?.species?.nama_latin}
                 </Typography>
                 <Chip
                   label={getStatusText(animal?.status)}
@@ -96,8 +108,7 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
 
                 <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                   <Button
-                    component={Link}
-                    to={`/animals/${animal?.id}`}
+                    onClick={() => handleDetailClick(animal?.id)}
                     variant="contained"
                     size="small"
                     sx={{

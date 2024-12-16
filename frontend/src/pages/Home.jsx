@@ -81,13 +81,13 @@ function Home() {
                     >
                       Tambah Berita
                     </Button>
-                    <Button 
+                    {/* <Button 
                       variant="contained" 
                       color="primary"
                       onClick={() => navigate('/conservation/create')}
                     >
                       Tambah Program Konservasi
-                    </Button>
+                    </Button> */}
                   </Box>
                 </Paper>
               </Grid>
@@ -159,7 +159,7 @@ function Home() {
             </Paper>
           </Grid>
 
-          {/* Program Konservasi */}
+          {/* Program Konservasi
           <Grid item xs={12} md={4}>
             <Paper 
               elevation={3} 
@@ -187,7 +187,7 @@ function Home() {
                 Lihat Program
               </Button>
             </Paper>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </Box>

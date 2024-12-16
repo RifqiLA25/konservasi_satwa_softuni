@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Container,
@@ -17,12 +17,14 @@ function Login() {
   const [error, setError] = useState('');
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await loginUser(username, password);
     if (success) {
-      navigate('/dashboard');
+      const from = location.state?.from || '/';
+      navigate(from);
     } else {
       setError('Username atau password salah');
     }
