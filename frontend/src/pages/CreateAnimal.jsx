@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Paper, TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { createAnimal } from '../services/apiService';
+import { Container, Paper, TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem, Alert, FormHelperText } from '@mui/material';
+import { createAnimal, getSpecies, getLocations } from '../services/apiService';
 
 function CreateAnimal() {
   const navigate = useNavigate();
@@ -11,9 +11,29 @@ function CreateAnimal() {
     status: '',
     populasi: '',
     deskripsi: '',
-    gambar: null
+    gambar: null,
+    lokasi: []
   });
+  const [species, setSpecies] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [speciesData, locationData] = await Promise.all([
+          getSpecies(),
+          getLocations()
+        ]);
+        setSpecies(speciesData.results || []);
+        setLocations(locationData.results || []);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Gagal memuat data species dan lokasi');
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,15 +54,54 @@ function CreateAnimal() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
+      
+      // Pastikan semua field required terisi
+      if (!formData.nama || !formData.species || !formData.status || !formData.populasi || !formData.deskripsi || !formData.lokasi.length) {
+        setError('Semua field termasuk lokasi harus diisi');
+        return;
+      }
+
+      formDataToSend.append('nama', formData.nama);
+      formDataToSend.append('species', formData.species);
+      formDataToSend.append('status', formData.status);
+      formDataToSend.append('populasi', parseInt(formData.populasi));
+      formDataToSend.append('deskripsi', formData.deskripsi);
+      
+      // Append setiap lokasi yang dipilih
+      formData.lokasi.forEach(lokasiId => {
+        formDataToSend.append('lokasi', lokasiId);
+      });
+      
+      if (formData.gambar) {
+        formDataToSend.append('gambar', formData.gambar);
+      }
+
+      // Log untuk debugging
+      console.log('Data yang akan dikirim:', {
+        nama: formData.nama,
+        species: formData.species,
+        status: formData.status,
+        populasi: formData.populasi,
+        deskripsi: formData.deskripsi,
+        lokasi: formData.lokasi,
+        gambar: formData.gambar
       });
 
-      await createAnimal(formDataToSend);
+      const response = await createAnimal(formDataToSend);
+      console.log('Response:', response);
       navigate('/animals');
     } catch (err) {
-      setError('Gagal menambahkan data satwa. Silakan coba lagi.');
+      console.error('Error detail:', err);
+      setError('Gagal menambahkan data satwa: ' + (err.message || 'Terjadi kesalahan'));
     }
+  };
+
+  const handleLocationChange = (event) => {
+    const selectedLocations = Array.isArray(event.target.value) ? event.target.value : [];
+    setFormData(prev => ({
+      ...prev,
+      lokasi: selectedLocations
+    }));
   };
 
   return (
@@ -53,9 +112,9 @@ function CreateAnimal() {
         </Typography>
 
         {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
-          </Typography>
+          </Alert>
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
@@ -68,6 +127,40 @@ function CreateAnimal() {
             margin="normal"
             required
           />
+
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Species</InputLabel>
+            <Select
+              name="species"
+              value={formData.species}
+              onChange={handleChange}
+              label="Species"
+            >
+              {species.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.nama} ({item.nama_latin})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Lokasi</InputLabel>
+            <Select
+              multiple
+              name="lokasi"
+              value={formData.lokasi}
+              onChange={handleLocationChange}
+              label="Lokasi"
+            >
+              {locations.map((location) => (
+                <MenuItem key={location.id} value={location.id}>
+                  {location.nama}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>Pilih minimal satu lokasi</FormHelperText>
+          </FormControl>
 
           <FormControl fullWidth margin="normal" required>
             <InputLabel>Status Konservasi</InputLabel>

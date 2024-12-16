@@ -71,33 +71,94 @@ export const getCurrentUser = async () => {
 
 // Animals
 export const getAnimals = async () => {
-  const response = await api.get('/animals/');
-  return response.data;
+  try {
+    const response = await api.get('/animals/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching animals:', error);
+    throw new Error('Gagal mengambil data satwa');
+  }
 };
 
 export const getAnimal = async (id) => {
-  const response = await api.get(`/animals/${id}/`);
-  return response.data;
-};
-
-export const createAnimal = async (data) => {
-  const response = await axios.post(`${API_URL}/animals/`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${getAuthToken()}`
+  try {
+    const token = getAuthToken();
+    const response = await api.get(`/animals/${id}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Get animal error:', error);
+    if (error.response?.status === 404) {
+      throw new Error('Data satwa tidak ditemukan');
     }
-  });
-  return response.data;
+    throw new Error('Gagal mengambil data satwa');
+  }
 };
 
-export const updateAnimal = async (id, data) => {
-  const response = await api.put(`/animals/${id}/`, data);
-  return response.data;
+export const createAnimal = async (formData) => {
+  try {
+    const response = await axios.post('http://localhost:8000/api/animals/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')).access : ''}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error.response || error);
+    throw new Error(error.response?.data?.detail || 'Terjadi kesalahan saat membuat data satwa');
+  }
+};
+
+export const updateAnimal = async (id, formData) => {
+  try {
+    const token = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')).access : '';
+    
+    // Debug log
+    console.log('Sending data to API:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    const response = await axios.patch(
+      `http://localhost:8000/api/animals/${id}/`, 
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    
+    console.log('API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error.response?.data || error);
+    throw new Error(
+      error.response?.data?.detail || 
+      error.response?.data?.message || 
+      'Terjadi kesalahan saat mengupdate data satwa'
+    );
+  }
 };
 
 export const deleteAnimal = async (id) => {
-  const response = await api.delete(`/animals/${id}/`);
-  return response.data;
+  try {
+    const token = getAuthToken();
+    const response = await api.delete(`/animals/${id}/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Delete animal error:', error.response || error);
+    throw new Error(error.response?.data?.detail || 'Gagal menghapus data satwa');
+  }
 };
 
 // Conservation Projects
@@ -299,6 +360,17 @@ export const updateNews = async (id, formData) => {
     }
     throw error;
   }
+};
+
+// Tambahkan fungsi untuk mengambil species dan lokasi
+export const getSpecies = async () => {
+  const response = await api.get('/species/');
+  return response.data;
+};
+
+export const getLocations = async () => {
+  const response = await api.get('/locations/');
+  return response.data;
 };
 
 export default api;

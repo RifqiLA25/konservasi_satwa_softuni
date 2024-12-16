@@ -62,17 +62,22 @@ class LocationViewSet(viewsets.ModelViewSet):
     serializer_class = LocationSerializer
     permission_classes = [IsStaffOrReadOnly]
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 class AnimalViewSet(viewsets.ModelViewSet):
     queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
+    parser_classes = (MultiPartParser, FormParser)
     
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [permissions.IsAuthenticated(), IsStaffOrReadOnly()]
-        return [permissions.AllowAny()]
-
-    def get_queryset(self):
-        return Animal.objects.all().select_related('species').prefetch_related('lokasi')
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            print(f"Error creating animal: {str(e)}")  # Untuk debugging
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class ConservationViewSet(viewsets.ModelViewSet):
     queryset = Conservation.objects.all()

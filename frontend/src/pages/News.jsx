@@ -175,8 +175,8 @@ const News = () => {
                   {canModify(article) && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                       <Button
-                        variant="outlined"
-                        color="primary"
+                        variant="contained"
+                        color="warning"
                         startIcon={<EditIcon />}
                         onClick={() => {
                           console.log('Navigating to edit page with ID:', article.id);
@@ -187,7 +187,7 @@ const News = () => {
                       </Button>
                       <Button
                         onClick={() => handleDelete(article.id)}
-                        variant="outlined"
+                        variant="contained"
                         color="error"
                         startIcon={<DeleteIcon />}
                       >

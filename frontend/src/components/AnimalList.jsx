@@ -71,7 +71,7 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
                   {animal?.nama}
                 </Typography>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  {animal?.species?.nama_latin}
+                  Species: {animal?.species?.nama || 'Tidak ada data'}
                 </Typography>
                 <Chip
                   label={getStatusText(animal?.status)}
@@ -88,7 +88,9 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
                     Populasi: {animal?.populasi?.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Lokasi: {animal?.lokasi?.map(loc => loc.nama).join(', ')}
+                    Lokasi: {Array.isArray(animal?.lokasi) ? 
+                      animal.lokasi.map(loc => loc.nama).join(', ') : 
+                      'Tidak ada data lokasi'}
                   </Typography>
                 </Box>
 
@@ -96,9 +98,15 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
                   <Button
                     component={Link}
                     to={`/animals/${animal?.id}`}
-                    variant="outlined"
+                    variant="contained"
                     size="small"
-                    fullWidth
+                    sx={{
+                      backgroundColor: '#2196f3',
+                      '&:hover': {
+                        backgroundColor: '#1976d2',
+                        boxShadow: '0 2px 4px rgba(33, 150, 243, 0.25)'
+                      }
+                    }}
                   >
                     Detail
                   </Button>
@@ -107,20 +115,34 @@ const AnimalList = ({ animals = [], onDelete, isStaff }) => {
                     <>
                       <Button
                         component={Link}
-                        to={`/animals/${animal?.id}/edit`}
-                        variant="outlined"
-                        color="primary"
+                        to={`/animals/edit/${animal?.id}`}
+                        variant="contained"
+                        color="warning"
                         size="small"
                         startIcon={<EditIcon />}
+                        sx={{
+                          backgroundColor: '#ff9800',
+                          '&:hover': {
+                            backgroundColor: '#f57c00',
+                            boxShadow: '0 2px 4px rgba(255, 152, 0, 0.25)'
+                          }
+                        }}
                       >
                         Edit
                       </Button>
                       <Button
                         onClick={() => onDelete?.(animal?.id)}
-                        variant="outlined"
+                        variant="contained"
                         color="error"
                         size="small"
                         startIcon={<DeleteIcon />}
+                        sx={{
+                          backgroundColor: '#f44336',
+                          '&:hover': {
+                            backgroundColor: '#d32f2f',
+                            boxShadow: '0 2px 4px rgba(244, 67, 54, 0.25)'
+                          }
+                        }}
                       >
                         Hapus
                       </Button>
