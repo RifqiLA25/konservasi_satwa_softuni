@@ -1,25 +1,24 @@
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Box, 
-  IconButton, 
-  Menu, 
-  MenuItem, 
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
   Avatar,
   Divider,
   ListItemIcon,
-  ListItemText
-} from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import PersonIcon from '@mui/icons-material/Person';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import HomeIcon from '@mui/icons-material/Home';
+  ListItemText,
+} from "@mui/material";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
+import HomeIcon from "@mui/icons-material/Home";
 
 function Navbar() {
   const { user, logoutUser } = useAuth();
@@ -37,143 +36,161 @@ function Navbar() {
   const handleLogout = () => {
     logoutUser();
     handleClose();
-    navigate('/');
+    navigate("/");
   };
 
   const menuItems = [
     {
-      label: 'Beranda',
+      label: "Beranda",
       icon: <HomeIcon fontSize="small" />,
       onClick: () => {
         handleClose();
-        navigate('/');
-      }
+        navigate("/");
+      },
     },
     {
-      label: 'Profil Saya',
+      label: "Profil Saya",
       icon: <PersonIcon fontSize="small" />,
       onClick: () => {
         handleClose();
-        navigate('/profile');
-      }
-    }
+        navigate("/profile");
+      },
+    },
   ];
 
-  if (user?.is_staff) {
-    menuItems.push({
-      label: 'Admin Panel',
-      icon: <AdminPanelSettingsIcon fontSize="small" />,
-      onClick: () => {
-        handleClose();
-        window.open('/admin', '_blank');
-      }
-    });
-  }
+  // if (user?.is_staff) {
+  //   menuItems.push({
+  //     label: "Admin Panel",
+  //     icon: <AdminPanelSettingsIcon fontSize="small" />,
+  //     onClick: () => {
+  //       handleClose();
+  //       window.open("/admin", "_blank");
+  //     },
+  //   });
+  // }
 
   return (
-    <AppBar position="static" sx={{ 
-      backgroundColor: '#2E7D32',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
+    <AppBar
+      position="static"
+      sx={{
+        backgroundColor: "#2E7D32",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+      }}
+    >
       <Toolbar>
-        <Typography 
-          variant="h6" 
-          component={RouterLink} 
-          to="/" 
-          sx={{ 
-            flexGrow: 1, 
-            textDecoration: 'none', 
-            color: 'inherit',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
+        <Typography
+          variant="h6"
+          component={RouterLink}
+          to="/"
+          sx={{
+            flexGrow: 1,
+            textDecoration: "none",
+            color: "inherit",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
             gap: 1,
-            '&:hover': {
-              color: '#81C784'
-            }
+            "&:hover": {
+              color: "#81C784",
+            },
           }}
         >
           🦁 Konservasi Satwa
         </Typography>
-        
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 1,
-          alignItems: 'center'
-        }}>
-          <Button 
-            color="inherit" 
-            component={RouterLink} 
+
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+          }}
+        >
+          <Button
+            color="inherit"
+            component={RouterLink}
             to="/animals"
-            sx={{ 
-              '&:hover': { 
-                backgroundColor: '#388E3C',
-                color: '#E8F5E9'
-              }
+            sx={{
+              "&:hover": {
+                backgroundColor: "#388E3C",
+                color: "#E8F5E9",
+              },
             }}
           >
             Satwa
           </Button>
-          <Button 
-            color="inherit" 
-            component={RouterLink} 
+          <Button
+            color="inherit"
+            component={RouterLink}
             to="/news"
-            sx={{ 
-              '&:hover': { 
-                backgroundColor: '#388E3C',
-                color: '#E8F5E9'
-              }
+            sx={{
+              "&:hover": {
+                backgroundColor: "#388E3C",
+                color: "#E8F5E9",
+              },
             }}
           >
             Berita
           </Button>
-          <Button 
-            color="inherit" 
-            component={RouterLink} 
+          <Button
+            color="inherit"
+            component={RouterLink}
+            to="/conservation"
+            sx={{
+              "&:hover": {
+                backgroundColor: "#388E3C",
+                color: "#E8F5E9",
+              },
+            }}
+          >
+            Konservasi
+          </Button>
+          <Button
+            color="inherit"
+            component={RouterLink}
             to="/about"
-            sx={{ 
-              '&:hover': { 
-                backgroundColor: '#388E3C',
-                color: '#E8F5E9'
-              }
+            sx={{
+              "&:hover": {
+                backgroundColor: "#388E3C",
+                color: "#E8F5E9",
+              },
             }}
           >
             Tentang
           </Button>
-          <Button 
-            color="inherit" 
-            component={RouterLink} 
+          <Button
+            color="inherit"
+            component={RouterLink}
             to="/contact"
-            sx={{ 
-              '&:hover': { 
-                backgroundColor: '#388E3C',
-                color: '#E8F5E9'
-              }
+            sx={{
+              "&:hover": {
+                backgroundColor: "#388E3C",
+                color: "#E8F5E9",
+              },
             }}
           >
             Kontak
           </Button>
-          
+
           {user ? (
             <>
               <IconButton
                 onClick={handleMenu}
-                sx={{ 
+                sx={{
                   ml: 2,
-                  border: '2px solid #81C784',
-                  padding: '4px'
+                  border: "2px solid #81C784",
+                  padding: "4px",
                 }}
               >
                 {user.avatar ? (
-                  <Avatar 
-                    src={user.avatar} 
-                    sx={{ 
-                      width: 32, 
-                      height: 32
-                    }} 
+                  <Avatar
+                    src={user.avatar}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                    }}
                   />
                 ) : (
-                  <AccountCircleIcon sx={{ color: '#fff' }} />
+                  <AccountCircleIcon sx={{ color: "#fff" }} />
                 )}
               </IconButton>
               <Menu
@@ -184,17 +201,17 @@ function Navbar() {
                   sx: {
                     mt: 1.5,
                     width: 200,
-                    '& .MuiMenuItem-root': {
+                    "& .MuiMenuItem-root": {
                       px: 2,
                       py: 1,
                       borderRadius: 1,
                       mx: 1,
-                      my: 0.5
-                    }
-                  }
+                      my: 0.5,
+                    },
+                  },
                 }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
                 <Box sx={{ px: 2, py: 1.5 }}>
                   <Typography variant="subtitle1" noWrap>
@@ -205,15 +222,15 @@ function Navbar() {
                   </Typography>
                 </Box>
                 <Divider sx={{ my: 1 }} />
-                
+
                 {menuItems.map((item, index) => (
-                  <MenuItem 
+                  <MenuItem
                     key={index}
                     onClick={item.onClick}
-                    sx={{ 
-                      '&:hover': { 
-                        backgroundColor: '#E8F5E9'
-                      }
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#E8F5E9",
+                      },
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 36 }}>
@@ -222,15 +239,15 @@ function Navbar() {
                     <ListItemText primary={item.label} />
                   </MenuItem>
                 ))}
-                
+
                 <Divider sx={{ my: 1 }} />
-                <MenuItem 
+                <MenuItem
                   onClick={handleLogout}
-                  sx={{ 
-                    color: '#D32F2F',
-                    '&:hover': { 
-                      backgroundColor: '#FFEBEE'
-                    }
+                  sx={{
+                    color: "#D32F2F",
+                    "&:hover": {
+                      backgroundColor: "#FFEBEE",
+                    },
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 36 }}>
@@ -241,31 +258,31 @@ function Navbar() {
               </Menu>
             </>
           ) : (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button 
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button
                 variant="outlined"
                 component={RouterLink}
                 to="/login"
-                sx={{ 
-                  color: '#fff',
-                  borderColor: '#fff',
-                  '&:hover': { 
-                    borderColor: '#81C784',
-                    backgroundColor: 'rgba(129, 199, 132, 0.1)'
-                  }
+                sx={{
+                  color: "#fff",
+                  borderColor: "#fff",
+                  "&:hover": {
+                    borderColor: "#81C784",
+                    backgroundColor: "rgba(129, 199, 132, 0.1)",
+                  },
                 }}
               >
                 Login
               </Button>
-              <Button 
+              <Button
                 variant="contained"
                 component={RouterLink}
                 to="/register"
-                sx={{ 
-                  backgroundColor: '#81C784',
-                  '&:hover': { 
-                    backgroundColor: '#66BB6A'
-                  }
+                sx={{
+                  backgroundColor: "#81C784",
+                  "&:hover": {
+                    backgroundColor: "#66BB6A",
+                  },
                 }}
               >
                 Daftar

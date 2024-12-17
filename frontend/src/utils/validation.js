@@ -33,8 +33,7 @@ export const validateConservation = (data) => {
     if (!data.deskripsi) errors.deskripsi = 'Deskripsi harus diisi';
     if (data.deskripsi.length < 50) errors.deskripsi = 'Deskripsi minimal 50 karakter';
     if (!data.tanggal_mulai) errors.tanggal_mulai = 'Tanggal mulai harus diisi';
-    if (!data.tanggal_selesai) errors.tanggal_selesai = 'Tanggal selesai harus diisi';
-    if (data.tanggal_mulai > data.tanggal_selesai) {
+    if (data.tanggal_mulai && data.tanggal_selesai && data.tanggal_mulai > data.tanggal_selesai) {
         errors.tanggal_selesai = 'Tanggal selesai harus setelah tanggal mulai';
     }
     

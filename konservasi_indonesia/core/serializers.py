@@ -72,36 +72,12 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class AnimalSerializer(serializers.ModelSerializer):
     species = SpeciesSerializer(read_only=True)
-    species_id = serializers.IntegerField(write_only=True, required=False)
     lokasi = LocationSerializer(many=True, read_only=True)
     
     class Meta:
         model = Animal
-        fields = ['id', 'nama', 'species', 'species_id', 'status', 'populasi', 'deskripsi', 'gambar', 'lokasi']
-
-    def update(self, instance, validated_data):
-        # Handle species update
-        species_id = validated_data.pop('species_id', None)
-        if species_id:
-            try:
-                species = Species.objects.get(id=species_id)
-                instance.species = species
-            except Species.DoesNotExist:
-                raise serializers.ValidationError({'species': 'Species tidak ditemukan'})
-
-        # Handle lokasi update
-        lokasi_data = self.context['request'].data.getlist('lokasi')
-        if lokasi_data:
-            instance.lokasi.clear()  # Hapus lokasi yang ada
-            lokasi_objects = Location.objects.filter(id__in=lokasi_data)
-            instance.lokasi.set(lokasi_objects)
-
-        # Update field lainnya
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        
-        instance.save()
-        return instance
+        fields = ['id', 'nama', 'species', 'status', 'populasi', 
+                 'deskripsi', 'gambar', 'lokasi']
 
 
 class ConservationSerializer(serializers.ModelSerializer):
@@ -131,7 +107,6 @@ class ConservationSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(serializers.ModelSerializer):
-    animals = AnimalSerializer(many=True, read_only=True)
     penulis = UserSerializer(read_only=True)
     
     class Meta:
@@ -139,23 +114,8 @@ class NewsSerializer(serializers.ModelSerializer):
         fields = ['id', 'judul', 'konten', 'gambar', 'animals', 'penulis', 'created_at', 'updated_at']
 
     def create(self, validated_data):
-        animals_data = self.context['request'].data.getlist('animals')
-        news = News.objects.create(**validated_data)
-        if animals_data:
-            animals = Animal.objects.filter(id__in=animals_data)
-            news.animals.set(animals)
-        return news
-
-    def update(self, instance, validated_data):
-        animals_data = self.context['request'].data.getlist('animals')
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        
-        if animals_data:
-            animals = Animal.objects.filter(id__in=animals_data)
-            instance.animals.set(animals)
-        return instance
+        validated_data['penulis'] = self.context['request'].user
+        return super().create(validated_data)
 
     def validate_konten(self, value):
         if len(value) < 100:

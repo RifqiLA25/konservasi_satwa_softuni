@@ -16,6 +16,8 @@ import CreateAnimal from "./pages/CreateAnimal";
 import CreateNews from "./pages/CreateNews";
 import CreateConservation from "./pages/CreateConservation";
 import EditNews from "./pages/EditNews";
+import Conservation from "./pages/Conservation";
+import EditConservation from "./pages/EditConservation";
 
 function App() {
   return (
@@ -75,6 +77,9 @@ function App() {
             }
           />
           <Route path="/news/edit/:id" element={<EditNews />} />
+          <Route path="/conservation" element={<Conservation />} />
+          <Route path="/conservation/create" element={<CreateConservation />} />
+          <Route path="/conservation/edit/:id" element={<EditConservation />} />
         </Routes>
       </AuthProvider>
     </Router>

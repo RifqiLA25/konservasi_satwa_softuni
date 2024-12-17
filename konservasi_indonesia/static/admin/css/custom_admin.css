@@ -1,0 +1,134 @@
+:root {
+  --primary-color: #1b5e20;
+  --secondary-color: #2e7d32;
+  --accent-color: #43a047;
+  --hover-color: #66bb6a;
+  --text-light: #ffffff;
+  --text-dark: #212121;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Header & Branding */
+#header {
+  background: var(--primary-color);
+  color: var(--text-light);
+  padding: 15px 40px;
+  box-shadow: var(--box-shadow);
+}
+
+#branding h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+#user-tools {
+  font-size: 14px;
+}
+
+/* Navigation */
+.module h2, .module caption {
+  background: var(--secondary-color);
+  padding: 12px 15px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  font-weight: 500;
+}
+
+div.breadcrumbs {
+  background: var(--accent-color);
+  padding: 15px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  box-shadow: var(--box-shadow);
+}
+
+/* Content Area */
+#content {
+  padding: 25px 40px;
+}
+
+.object-tools a {
+  background: var(--accent-color);
+  padding: 8px 15px;
+  border-radius: var(--border-radius);
+}
+
+.object-tools a:hover {
+  background: var(--hover-color);
+}
+
+/* Tables */
+#changelist table {
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+#changelist table thead th {
+  background: var(--secondary-color);
+  color: var(--text-light);
+  padding: 12px 15px;
+}
+
+#changelist table tbody tr:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* Forms */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: var(--secondary-color);
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  border: none;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+  background: var(--hover-color);
+}
+
+.button.default, input[type=submit].default {
+  background: var(--primary-color);
+}
+
+/* Filters */
+#changelist-filter {
+  background: #f5f5f5;
+  border-radius: var(--border-radius);
+  padding: 15px;
+}
+
+#changelist-filter h2 {
+  background: var(--secondary-color);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: 10px 15px;
+  color: var(--text-light);
+}
+
+/* Messages */
+.messagelist {
+  padding: 0;
+}
+
+.messagelist li {
+  padding: 15px 40px;
+  border-radius: var(--border-radius);
+  margin-bottom: 10px;
+}
+
+/* Dashboard */
+.dashboard .module table {
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+}
+
+.dashboard .module table th {
+  background: var(--secondary-color);
+  color: var(--text-light);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  #header, div.breadcrumbs, #content {
+    padding: 15px 20px;
+  }
+} 

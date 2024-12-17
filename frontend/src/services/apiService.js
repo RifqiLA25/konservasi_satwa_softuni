@@ -289,7 +289,7 @@ export const createNews = async (formData) => {
 // Fungsi untuk membuat program konservasi baru
 export const createConservation = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}/conservation/`, data, {
+    const response = await api.post('/conservation/', data, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getAuthToken()}`
@@ -371,6 +371,42 @@ export const getSpecies = async () => {
 export const getLocations = async () => {
   const response = await api.get('/locations/');
   return response.data;
+};
+
+export const getConservations = async () => {
+  try {
+    const response = await api.get('/conservation/');
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const getConservationById = async (id) => {
+  try {
+    const response = await api.get(`/conservation/${id}/`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const updateConservation = async (id, data) => {
+  try {
+    const response = await api.put(`/conservation/${id}/`, data);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const deleteConservation = async (id) => {
+  try {
+    const response = await api.delete(`/conservation/${id}/`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
 };
 
 export default api;
