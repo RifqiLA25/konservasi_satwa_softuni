@@ -59,7 +59,7 @@ const EditNews = () => {
           setFormData({
             judul: newsData.judul,
             konten: newsData.konten,
-            animals: newsData.animals?.map(animal => animal.id) || [],
+            animals: newsData.animals?.map(animal => parseInt(animal)) || [],
             gambar: newsData.gambar
           });
         } else {
@@ -100,7 +100,10 @@ const EditNews = () => {
   };
 
   const handleAnimalChange = (event) => {
-    const selectedAnimals = Array.isArray(event.target.value) ? event.target.value : [];
+    const selectedAnimals = Array.isArray(event.target.value) 
+      ? event.target.value.map(id => parseInt(id))
+      : [];
+    
     setFormData(prev => ({
       ...prev,
       animals: selectedAnimals
@@ -187,16 +190,16 @@ const EditNews = () => {
             <InputLabel>Hewan Terkait</InputLabel>
             <Select
               multiple
-              value={formData.animals}
+              value={formData.animals.map(id => parseInt(id))}
               onChange={handleAnimalChange}
               input={<OutlinedInput label="Hewan Terkait" />}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((value) => {
-                    const animal = availableAnimals.find(a => a.id === value);
+                    const animal = availableAnimals.find(a => a.id === parseInt(value));
                     return (
                       <Chip 
-                        key={value} 
+                        key={`animal-${value}`}
                         label={animal ? animal.nama : 'Tidak ditemukan'} 
                         sx={{ m: 0.5 }}
                       />
@@ -206,7 +209,7 @@ const EditNews = () => {
               )}
             >
               {availableAnimals.map((animal) => (
-                <MenuItem key={animal.id} value={animal.id}>
+                <MenuItem key={`menu-${animal.id}`} value={animal.id}>
                   {animal.nama}
                 </MenuItem>
               ))}

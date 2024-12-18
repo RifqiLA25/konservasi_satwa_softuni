@@ -60,10 +60,22 @@ function EditConservation() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateConservation(id, formData);
+      const dataToSend = {
+        nama: formData.nama,
+        animal_id: parseInt(formData.animal),
+        deskripsi: formData.deskripsi,
+        tanggal_mulai: formData.tanggal_mulai,
+        tanggal_selesai: formData.tanggal_selesai || null,
+        status: formData.status
+      };
+
+      console.log('Data yang akan dikirim:', dataToSend);
+      
+      await updateConservation(id, dataToSend);
       navigate('/conservation');
     } catch (err) {
-      setError('Gagal mengupdate program konservasi');
+      console.error('Error updating conservation:', err);
+      setError(err.message || 'Gagal mengupdate program konservasi');
     }
   };
 

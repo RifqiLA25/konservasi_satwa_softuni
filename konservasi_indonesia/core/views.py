@@ -24,16 +24,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     
     def get_permissions(self):
-        if self.action == 'create':  # Registration
-            return [permissions.AllowAny()]
-        elif self.action in ['retrieve', 'update', 'partial_update']:
+        if self.action in ['profile', 'me', 'update_profile']:
             return [permissions.IsAuthenticated()]
+        elif self.action == 'create':  # Registration
+            return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
-
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
 
     @action(detail=False, methods=['get', 'put', 'patch'], url_path='me/profile')
     def profile(self, request):

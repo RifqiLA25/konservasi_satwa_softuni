@@ -1,35 +1,48 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Paper, TextField, Button, Typography, Box, FormControl, InputLabel, Select, MenuItem, Alert, FormHelperText } from '@mui/material';
-import { createAnimal, getSpecies, getLocations } from '../services/apiService';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  FormHelperText,
+} from "@mui/material";
+import { createAnimal, getSpecies, getLocations } from "../services/apiService";
 
 function CreateAnimal() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nama: '',
-    species: '',
-    status: '',
-    populasi: '',
-    deskripsi: '',
+    nama: "",
+    species: "",
+    status: "",
+    populasi: "",
+    deskripsi: "",
     gambar: null,
-    lokasi: []
+    lokasi: [],
   });
   const [species, setSpecies] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [speciesData, locationData] = await Promise.all([
           getSpecies(),
-          getLocations()
+          getLocations(),
         ]);
         setSpecies(speciesData.results || []);
         setLocations(locationData.results || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Gagal memuat data species dan lokasi');
+        console.error("Error fetching data:", err);
+        setError("Gagal memuat data species dan lokasi");
       }
     };
     fetchData();
@@ -37,16 +50,16 @@ function CreateAnimal() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleImageChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      gambar: e.target.files[0]
+      gambar: e.target.files[0],
     }));
   };
 
@@ -54,53 +67,64 @@ function CreateAnimal() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      
+
       // Pastikan semua field required terisi
-      if (!formData.nama || !formData.species || !formData.status || !formData.populasi || !formData.deskripsi || !formData.lokasi.length) {
-        setError('Semua field termasuk lokasi harus diisi');
+      if (
+        !formData.nama ||
+        !formData.species ||
+        !formData.status ||
+        !formData.populasi ||
+        !formData.deskripsi ||
+        !formData.lokasi.length
+      ) {
+        setError("Semua field termasuk lokasi harus diisi");
         return;
       }
 
-      formDataToSend.append('nama', formData.nama);
-      formDataToSend.append('species', formData.species);
-      formDataToSend.append('status', formData.status);
-      formDataToSend.append('populasi', parseInt(formData.populasi));
-      formDataToSend.append('deskripsi', formData.deskripsi);
-      
+      formDataToSend.append("nama", formData.nama);
+      formDataToSend.append("species_id", formData.species);
+      formDataToSend.append("status", formData.status);
+      formDataToSend.append("populasi", parseInt(formData.populasi));
+      formDataToSend.append("deskripsi", formData.deskripsi);
+
       // Append setiap lokasi yang dipilih
-      formData.lokasi.forEach(lokasiId => {
-        formDataToSend.append('lokasi', lokasiId);
+      formData.lokasi.forEach((lokasiId) => {
+        formDataToSend.append("lokasi", lokasiId);
       });
-      
+
       if (formData.gambar) {
-        formDataToSend.append('gambar', formData.gambar);
+        formDataToSend.append("gambar", formData.gambar);
       }
 
       // Log untuk debugging
-      console.log('Data yang akan dikirim:', {
+      console.log("Data yang akan dikirim:", {
         nama: formData.nama,
         species: formData.species,
         status: formData.status,
         populasi: formData.populasi,
         deskripsi: formData.deskripsi,
         lokasi: formData.lokasi,
-        gambar: formData.gambar
+        gambar: formData.gambar,
       });
 
       const response = await createAnimal(formDataToSend);
-      console.log('Response:', response);
-      navigate('/animals');
+      console.log("Response:", response);
+      navigate("/animals");
     } catch (err) {
-      console.error('Error detail:', err);
-      setError('Gagal menambahkan data satwa: ' + (err.message || 'Terjadi kesalahan'));
+      console.error("Error detail:", err);
+      setError(
+        "Gagal menambahkan data satwa: " + (err.message || "Terjadi kesalahan")
+      );
     }
   };
 
   const handleLocationChange = (event) => {
-    const selectedLocations = Array.isArray(event.target.value) ? event.target.value : [];
-    setFormData(prev => ({
+    const selectedLocations = Array.isArray(event.target.value)
+      ? event.target.value
+      : [];
+    setFormData((prev) => ({
       ...prev,
-      lokasi: selectedLocations
+      lokasi: selectedLocations,
     }));
   };
 
@@ -200,11 +224,7 @@ function CreateAnimal() {
             required
           />
 
-          <Button
-            variant="contained"
-            component="label"
-            sx={{ mt: 2, mb: 2 }}
-          >
+          <Button variant="contained" component="label" sx={{ mt: 2, mb: 2 }}>
             Upload Gambar
             <input
               type="file"
@@ -214,20 +234,15 @@ function CreateAnimal() {
             />
           </Button>
 
-          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
+          <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
               Simpan
             </Button>
             <Button
               variant="outlined"
               color="secondary"
               fullWidth
-              onClick={() => navigate('/animals')}
+              onClick={() => navigate("/animals")}
             >
               Batal
             </Button>
@@ -238,4 +253,4 @@ function CreateAnimal() {
   );
 }
 
-export default CreateAnimal; 
+export default CreateAnimal;
